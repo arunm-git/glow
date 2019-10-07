@@ -747,14 +747,14 @@ protected:
     if (convertToFP16) {
       precConfig_.convertToFP16 = convertToFP16;
       // For now always convert both or neither.
-      precConfig_.convertFusedToFP16 = convertToFP16;
+      precConfig_.convertFusedToFP16 = false;
       // Note: always do not convert RWQ-SLWS here. The creator itself for
       // precisionForNonDataSLWS already directly created the node with the
       // correct precision.
-      precConfig_.precisionModeKindSet.insert(
-          Kinded::Kind::FusedRowwiseQuantizedSparseLengthsWeightedSumNodeKind);
-      precConfig_.precisionModeKindSet.insert(
-          Kinded::Kind::RowwiseQuantizedFullyConnectedNodeKind);
+      // precConfig_.precisionModeKindSet.insert(
+      //     Kinded::Kind::FusedRowwiseQuantizedSparseLengthsWeightedSumNodeKind);
+      // precConfig_.precisionModeKindSet.insert(
+      //     Kinded::Kind::RowwiseQuantizedFullyConnectedNodeKind);
     }
   }
 
@@ -844,6 +844,7 @@ protected:
     // Use the same precision transformation for compilation.
     CompilationContext cctx;
     cctx.precisionConfig = precConfig_;
+    cctx.precisionConfig.convertToFP16 = false;
     EXIT_ON_ERR(hostManager->addNetwork(std::move(modI), cctx));
     dispatchInference(hostManager.get(), contextI);
 
