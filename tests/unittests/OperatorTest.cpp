@@ -7276,6 +7276,24 @@ TEST_P(OperatorTest, SparseLengthsSum_Float16) {
   testSLS<float16_t>(bindings_, mod_, F_, EE_, ElemKind::Float16Ty, 0.002);
 }
 
+
+/// Test compiling large weight tensors in Float16Ty
+TEST_P(OperatorTest, SparseLengthsSum_Float16_Repro) {
+  auto *data =
+          mod_.createPlaceholder(ElemKind::Float16Ty, {1000000, 1}, "data", false);
+  auto *indices =
+          mod_.createPlaceholder(IndexElemKind, {10000000}, "indices", false);
+  auto *lengths =
+          mod_.createPlaceholder(ElemKind::Int32ITy, {10}, "lengths", false);
+
+  auto *R = F_->createSparseLengthsSum("SLS", data, indices, lengths);
+
+  auto *S = F_->createSave("save", R);
+  bindings_.allocate(S->getPlaceholder());
+
+  EE_.compile(CompilationMode::Infer);
+}
+
 TEST_P(OperatorTest, SparseLengthsSumI8) {
   CHECK_IF_ENABLED();
 
